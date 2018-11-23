@@ -1,12 +1,12 @@
 
 ## Example bucket config
-buckets:
-  normal-bucket:
-    type: default
-  create-only-bucket:
-    bucket_name: ${EnvironmentName}.mybucket
-    type: create_if_not_exists
-    ssm_parameter: /app/my-create-only-bucket #creates a ssm parameter with bucket name
+# buckets:
+#   normal-bucket:
+#     type: default
+#   create-only-bucket:
+#     bucket_name: ${EnvironmentName}.mybucket
+#     type: create_if_not_exists
+#     ssm_parameter: /app/my-create-only-bucket #creates a ssm parameter with bucket name
 
 s3_custom_resources:
   custom_policies:
