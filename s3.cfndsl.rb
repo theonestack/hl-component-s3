@@ -11,7 +11,7 @@ CloudFormation do
         Type 'Custom::S3BucketCreateOnly'
         Property 'ServiceToken',FnGetAtt('S3BucketCreateOnlyCR','Arn')
         Property 'Region', Ref('AWS::Region')
-        Property 'BucketName', bucket_name
+        Property 'BucketName', FnSub(bucket_name)
       end
     else
       S3_Bucket("#{safe_bucket_name}") do
