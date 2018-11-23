@@ -1,0 +1,31 @@
+
+## Example bucket config
+buckets:
+  normal-bucket:
+    type: default
+  create-only-bucket:
+    bucket_name: ${EnvironmentName}.mybucket
+    type: create_if_not_exists
+    ssm_parameter: /app/my-create-only-bucket #creates a ssm parameter with bucket name
+
+s3_custom_resources:
+  custom_policies:
+    s3:
+      action:
+        - s3:*
+      resource: '*'
+  roles:
+    S3CustomResource:
+      policies_inline:
+        - cloudwatch-logs
+        - s3
+  functions:
+    S3BucketCreateOnlyCR:
+      code: s3_bucket.py
+      handler: s3_bucket.handler
+      runtime: python3.6
+      timeout: 5
+      role: S3CustomResource
+      environment:
+        ENVIRONMENT_NAME:
+          Ref: EnvironmentName
