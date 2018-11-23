@@ -32,6 +32,8 @@ CloudFormation do
       end
     end
 
-  end
+    Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
+
+  end if defined? buckets
 
 end
