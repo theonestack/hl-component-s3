@@ -1,0 +1,38 @@
+test_metadata:
+  type: config
+  name: bucket with lambda notifictaion
+  description: Create bucket and enable lambda notifcation on creation of new objects
+
+
+buckets:
+  normal-bucket:
+    type: default
+    notifications:
+      lambda:
+        -
+          function: myfunction
+          event: "s3:ObjectCreated:*"
+
+
+
+s3_custom_resources:
+  custom_policies:
+    s3:
+      action:
+        - s3:*
+      resource: '*'
+  roles:
+    S3CustomResource:
+      policies_inline:
+        - cloudwatch-logs
+        - s3
+  functions:
+    S3BucketCreateOnlyCR:
+      code: s3_bucket.py
+      handler: s3_bucket.handler
+      runtime: python3.6
+      timeout: 5
+      role: S3CustomResource
+      environment:
+        ENVIRONMENT_NAME:
+          Ref: EnvironmentName

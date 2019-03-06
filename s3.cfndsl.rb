@@ -5,6 +5,22 @@ CloudFormation do
     safe_bucket_name = bucket.capitalize.gsub('_','').gsub('-','')
     bucket_type = config.has_key?('type') ? config['type'] : 'default'
     bucket_name = config.has_key?('bucket_name') ? config['bucket_name'] : bucket
+    
+    notification_configurations = {}
+    if config.has_key?('notifications')
+        if config['notifications'].has_key?('lambda')
+            notification_configurations['LambdaConfigurations'] = []
+            config['notifications']['lambda'].each do |values|
+                lambda_config = {}
+                lambda_config['Function'] = values['function']
+                lambda_config['Event'] = values['event']
+                notification_configurations['LambdaConfigurations'] << lambda_config
+            end
+        end
+    end
+
+
+
 
     if bucket_type == 'create_if_not_exists'
       Resource("#{safe_bucket_name}") do
@@ -21,6 +37,7 @@ CloudFormation do
           { Key: 'Environment', Value: Ref("EnvironmentName") },
           { Key: 'EnvironmentType', Value: Ref("EnvironmentType") }
         ])
+        NotificationConfiguration notification_configurations unless notification_configurations.empty?
       end
     end
 

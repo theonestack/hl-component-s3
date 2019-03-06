@@ -1,0 +1,10 @@
+test_metadata:
+  type: config
+  name: Basic bucket
+  description: Create bucket 
+
+
+buckets:
+  normal-bucket:
+    type: default
+    
