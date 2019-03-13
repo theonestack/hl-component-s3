@@ -40,15 +40,18 @@ def create_bucket(params, event, context):
   bucket_name = params['BucketName']
   try:
     s3 = boto3.client('s3')
-    bucket = s3.create_bucket(
-                Bucket=bucket_name,
-                CreateBucketConfiguration={
-                  'LocationConstraint': params['Region']
-                }
-                )
+    if params['Region'] == 'us-east-1':
+      bucket = s3.create_bucket(Bucket=bucket_name)
+    else:
+      bucket = s3.create_bucket(
+                  Bucket=bucket_name,
+                  CreateBucketConfiguration={
+                    'LocationConstraint': params['Region']
+                  }
+                  )
     print(f"created bucket {bucket_name} in {bucket['Location']}")
-  except:
-    print(f"bucket {bucket_name} already exists")
+  except Exception as e:
+    print(f"bucket {bucket_name} already exists - {e}")
 
 def update_bucket(params, event, context):
   if 'BucketName' not in params:
