@@ -20,8 +20,6 @@ CloudFormation do
     end
 
 
-
-
     if bucket_type == 'create_if_not_exists'
       Resource("#{safe_bucket_name}") do
         Type 'Custom::S3BucketCreateOnly'
@@ -38,6 +36,7 @@ CloudFormation do
           { Key: 'EnvironmentType', Value: Ref("EnvironmentType") }
         ])
         NotificationConfiguration notification_configurations unless notification_configurations.empty?
+        LifecycleConfiguration({ Rules: config['lifecycle_rules'] }) if config.has_key?('lifecycle_rules')
       end
     end
 

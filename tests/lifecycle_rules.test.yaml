@@ -1,0 +1,31 @@
+test_metadata:
+  type: config
+  name: bucket with lifecycle rules
+  description: Create bucket and enable lambda notifcation on creation of new objects
+
+
+buckets:
+  normal-bucket:
+    type: default  
+    lifecycle_rules:
+      - 
+        Id: myCustomRule
+        ExpirationInDays: 2555
+        Prefix: logs/
+        Status: Enabled
+        Transitions:
+          - 
+            StorageClass: STANDARD_IA
+            TransitionInDays: 7
+          - 
+            StorageClass: GLACIER
+            TransitionInDays: 30     
+      - 
+        Id: myOtherRule
+        ExpirationInDays: 2555
+        Prefix: documents/
+        Status: Enabled
+        Transitions:
+          - 
+            StorageClass: STANDARD_IA
+            TransitionInDays: 7    
