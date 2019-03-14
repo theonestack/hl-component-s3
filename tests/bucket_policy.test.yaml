@@ -1,0 +1,17 @@
+test_metadata:
+  type: config
+  name: Bucket and policy
+  description: Create bucket and bucket policy
+
+
+buckets:
+  normal-bucket:
+    type: default  
+    bucket-policy:
+      loadbalancer-logs:
+        actions:
+          - s3:PutObject
+        principal:
+          AWS: "arn:aws:iam::111111111111:root"
+        
+      
