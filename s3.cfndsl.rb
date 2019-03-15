@@ -49,6 +49,29 @@ CloudFormation do
     end
 
     Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
+    
+
+    if config.has_key?('bucket-policy')
+        policy_document = {}
+        policy_document["Statement"] = []
+        
+        config['bucket-policy'].each do |sid, statement_config|
+            statement = {}
+            statement["Sid"] = sid
+            statement['Effect'] = statement_config.has_key?('effect') ? statement_config['effect'] : "Allow"
+            statement['Principal'] = statement_config.has_key?('principal') ? statement_config['principal'] : {AWS: FnSub("arn:aws:iam::${AWS::AccountId}:root")}
+            statement['Resource'] = statement_config.has_key?('resource') ? statement_config['resource'] : [FnJoin("",["arn:aws:s3:::", Ref(safe_bucket_name)]), FnJoin("",["arn:aws:s3:::", Ref(safe_bucket_name), "/*"])]
+            statement['Action'] = statement_config.has_key?('actions') ? statement_config['actions'] : ["s3:*"]
+            statement['Condition'] = statement_config['conditions'] if statement_config.has_key?('conditions')
+            policy_document["Statement"] << statement
+        end
+
+        S3_BucketPolicy("#{safe_bucket_name}Policy") do
+            Bucket Ref(safe_bucket_name)
+            PolicyDocument policy_document
+        end
+    end
+
 
   end if defined? buckets
 
