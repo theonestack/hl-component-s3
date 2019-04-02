@@ -5,7 +5,7 @@ CloudFormation do
     safe_bucket_name = bucket.capitalize.gsub('_','').gsub('-','')
     bucket_type = config.has_key?('type') ? config['type'] : 'default'
     bucket_name = config.has_key?('bucket_name') ? config['bucket_name'] : bucket
-    
+
     notification_configurations = {}
     if config.has_key?('notifications')
         if config['notifications'].has_key?('lambda')
@@ -49,12 +49,13 @@ CloudFormation do
     end
 
     Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
-    
+    Output(safe_bucket_name + 'DomainName') { Value(FnGetAtt(safe_bucket_name, 'DomainName')) }
+
 
     if config.has_key?('bucket-policy')
         policy_document = {}
         policy_document["Statement"] = []
-        
+
         config['bucket-policy'].each do |sid, statement_config|
             statement = {}
             statement["Sid"] = sid
