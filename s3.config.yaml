@@ -12,7 +12,8 @@ s3_custom_resources:
   custom_policies:
     s3:
       action:
-        - s3:*
+        - s3:CreateBucket
+        - s3:DeleteBucket
       resource: '*'
   roles:
     S3CustomResource:
