@@ -16,18 +16,36 @@ def handler(event, context):
     params = event['ResourceProperties']
     print(f"Resource Properties {params}")
 
+    bucket = params['BucketName']
+    region = params['Region']
+
+    arn = f'arn:aws:s3:::{bucket}'
+
+    if region == 'us-east-1':
+        domain_name = f's3.amazonaws.com/{bucket}'
+    else:
+        domain_name = f's3.{region}.amazonaws.com/{bucket}'
+
+    data = {
+        'DomainName' : domain_name,
+        'Arn': arn
+    }
+
     try:
         if event['RequestType'] == 'Create':
-            event['PhysicalResourceId'] = params['BucketName']
+            event['PhysicalResourceId'] = bucket
             create_bucket(params, event, context)
-            lambda_response.respond()
+            lambda_response.respond(data)
+
         elif event['RequestType'] == 'Update':
             event['PhysicalResourceId'] = params['BucketName']
             update_bucket(params, event, context)
-            lambda_response.respond()
+            lambda_response.respond(data)
+
         elif event['RequestType'] == 'Delete':
             print(f"ignoring deletion of bucket {params['BucketName']}")
-            lambda_response.respond()    
+            lambda_response.respond()
+
     except Exception as e:
         message = str(e)
         lambda_response.respond_error(message)
