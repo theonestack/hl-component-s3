@@ -8,3 +8,4 @@ buckets:
   normal-bucket:
     type: default
     acceleration_status: Enabled # Enabled | Suspended
+    deletion_policy: true
