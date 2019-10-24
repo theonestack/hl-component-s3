@@ -1,0 +1,10 @@
+test_metadata:
+  type: config
+  name: bucket with global acceleration
+  description: Create bucket and enable global acceleration
+
+
+buckets:
+  normal-bucket:
+    type: default
+    acceleration_status: Enabled # Enabled | Suspended
