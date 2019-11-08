@@ -29,7 +29,7 @@ CloudFormation do
       end
     else
       S3_Bucket("#{safe_bucket_name}") do
-        DeletionPolicy 'Retain' if config.has_key?('deletion_policy')
+        DeletionPolicy 'Retain' if (config.has_key?('deletion_policy') && config['deletion_policy'] == 'Retain' )
         BucketName FnSub(bucket_name)
         Tags([
           { Key: 'Name', Value: FnSub("${EnvironmentName}-#{bucket}") },
