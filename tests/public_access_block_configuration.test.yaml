@@ -1,0 +1,15 @@
+test_metadata:
+  type: config
+  name: bucket with public block
+  description: Create bucket and enable public block
+
+
+buckets:
+  normal-bucket:
+    type: default
+    public_access_block_configuration:
+      BlockPublicAcls: true
+      BlockPublicPolicy: true
+      IgnorePublicAcls: false
+      RestrictPublicBuckets: false
+    versioning_configuration: Enabled # Enabled | Suspended

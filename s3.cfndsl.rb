@@ -29,6 +29,7 @@ CloudFormation do
       end
     else
       S3_Bucket("#{safe_bucket_name}") do
+        DeletionPolicy 'Retain' if (config.has_key?('deletion_policy') && config['deletion_policy'] == 'Retain' )
         BucketName FnSub(bucket_name)
         Tags([
           { Key: 'Name', Value: FnSub("${EnvironmentName}-#{bucket}") },
@@ -37,6 +38,9 @@ CloudFormation do
         ])
         NotificationConfiguration notification_configurations unless notification_configurations.empty?
         LifecycleConfiguration({ Rules: config['lifecycle_rules'] }) if config.has_key?('lifecycle_rules')
+        AccelerateConfiguration({ AccelerationStatus: config['acceleration_status'] }) if config.has_key?('acceleration_status')
+        PublicAccessBlockConfiguration config['public_access_block_configuration'] if config.has_key?('public_access_block_configuration')
+        VersioningConfiguration({ Status: config['versioning_configuration'] }) if config.has_key?('versioning_configuration')
       end
     end
 
