@@ -1,5 +1,6 @@
 CloudFormation do
 
+  buckets = external_parameters.fetch(:buckets, {})
   buckets.each do |bucket, config|
 
     safe_bucket_name = bucket.capitalize.gsub('_','').gsub('-','')
@@ -78,6 +79,6 @@ CloudFormation do
     end
 
 
-  end if defined? buckets
+  end
 
 end
