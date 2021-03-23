@@ -33,6 +33,7 @@ CloudFormation do
       Condition("#{safe_bucket_name}SetLogFilePrefix", FnNot(FnEquals(Ref("#{safe_bucket_name}LogFilePrefix"), ''))) if config.has_key? 'enable_logging' and config['enable_logging']
 
       S3_Bucket("#{safe_bucket_name}") do
+        AccessControl config['access_control'] if config.has_key?('access_control')
         DeletionPolicy 'Retain' if (config.has_key?('deletion_policy') && config['deletion_policy'] == 'Retain' )
         BucketName FnSub(bucket_name)
         Tags([
