@@ -29,7 +29,11 @@ CloudFormation do
         Property 'BucketName', FnSub(bucket_name)
       end
     else
+
+      Condition("#{safe_bucket_name}SetLogFilePrefix", FnNot(FnEquals(Ref("#{safe_bucket_name}LogFilePrefix"), ''))) if config.has_key? 'enable_logging' and config['enable_logging']
+
       S3_Bucket("#{safe_bucket_name}") do
+        AccessControl config['access_control'] if config.has_key?('access_control')
         DeletionPolicy 'Retain' if (config.has_key?('deletion_policy') && config['deletion_policy'] == 'Retain' )
         BucketName FnSub(bucket_name)
         Tags([
@@ -42,6 +46,11 @@ CloudFormation do
         AccelerateConfiguration({ AccelerationStatus: config['acceleration_status'] }) if config.has_key?('acceleration_status')
         PublicAccessBlockConfiguration config['public_access_block_configuration'] if config.has_key?('public_access_block_configuration')
         VersioningConfiguration({ Status: config['versioning_configuration'] }) if config.has_key?('versioning_configuration')
+        BucketEncryption config['bucket_encryption'] if config.has_key?('bucket_encryption')
+        LoggingConfiguration ({
+          DestinationBucketName: Ref("#{safe_bucket_name}AccessLogsBucket"),
+          LogFilePrefix: FnIf("#{safe_bucket_name}SetLogFilePrefix", Ref("#{safe_bucket_name}LogFilePrefix"), Ref('AWS::NoValue'))
+        }) if config.has_key?('enable_logging') && config['enable_logging']
       end
     end
 
