@@ -1,0 +1,23 @@
+buckets:
+  MuhBucket:
+    bucket_name: kyle-test-intelligent-tier
+    type: default
+    acceleration_status: Enabled
+    deletion_policy: 'Retain'
+    versioning_configuration: Enabled
+    intelligent_tiering_configuration:
+      -
+        Id: 'StingyCustomer' # Required
+        Prefix: '2019Docs_'
+        Status: 'Enabled' # Required
+        TagFilters:
+          -
+            Key: 'IntTier'
+            Value: 'No'
+        Tierings:   # Required
+          -
+            AccessTier: 'ARCHIVE_ACCESS'
+            Days: 90
+          -
+            AccessTier: 'DEEP_ARCHIVE_ACCESS'
+            Days: 365

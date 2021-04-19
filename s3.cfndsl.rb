@@ -46,6 +46,7 @@ CloudFormation do
         AccelerateConfiguration({ AccelerationStatus: config['acceleration_status'] }) if config.has_key?('acceleration_status')
         PublicAccessBlockConfiguration config['public_access_block_configuration'] if config.has_key?('public_access_block_configuration')
         VersioningConfiguration({ Status: config['versioning_configuration'] }) if config.has_key?('versioning_configuration')
+        IntelligentTieringConfiguration(config['intelligent_tiering_configuration']) if config.has_key?('intelligent_tiering_configuration')
         BucketEncryption config['bucket_encryption'] if config.has_key?('bucket_encryption')
         LoggingConfiguration ({
           DestinationBucketName: Ref("#{safe_bucket_name}AccessLogsBucket"),
