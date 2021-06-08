@@ -18,6 +18,17 @@ CloudFormation do
                 notification_configurations['LambdaConfigurations'] << lambda_config
             end
         end
+        if config['notifications'].has_key?('sqs')
+            notification_configurations['QueueConfiguration'] = []
+            config['notifications']['sqs'].each do |values|
+                sqs_config = {}
+                sqs_config['Queue'] = values['queue']
+                sqs_config['Event'] = values['event']
+                sqs_config['NotificationFilter'] = values['filter']
+                notification_configurations['QueueConfiguration'] << sqs_config
+            end
+        end
+
     end
 
 
