@@ -83,6 +83,8 @@ def update_bucket(params, event, context):
     raise Exception('BucketName parameter is required')
 
   bucket_name = params['BucketName']
+  if notifications:
+      add_notification(notifications, bucket_name)
   print(f"ignoring updates to bucket {bucket_name}")
   print(f"TODO implement updates")
 
