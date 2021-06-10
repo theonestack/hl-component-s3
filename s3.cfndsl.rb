@@ -49,7 +49,7 @@ CloudFormation do
         Property 'ServiceToken',FnGetAtt('S3BucketCreateOnlyCR','Arn')
         Property 'Region', Ref('AWS::Region')
         Property 'BucketName', FnSub(bucket_name)
-        Property 'Notifications', FnSub(notification_configurations)
+        Property 'Notifications', notification_configurations
       end
     else
 
