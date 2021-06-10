@@ -18,6 +18,7 @@ def handler(event, context):
 
     bucket = params['BucketName']
     region = params['Region']
+    notifications = params['Notifications']
 
     arn = f'arn:aws:s3:::{bucket}'
 
@@ -62,6 +63,8 @@ def create_bucket(params, event, context):
     s3 = boto3.client('s3')
     if params['Region'] == 'us-east-1':
       bucket = s3.create_bucket(Bucket=bucket_name)
+      if notifications:
+          add_notification(notifications, bucket_name)
     else:
       bucket = s3.create_bucket(
                   Bucket=bucket_name,
@@ -69,6 +72,8 @@ def create_bucket(params, event, context):
                     'LocationConstraint': params['Region']
                   }
                   )
+      if notifications:
+          add_notification(notifications, bucket_name)
     print(f"created bucket {bucket_name} in {bucket['Location']}")
   except Exception as e:
     print(f"bucket {bucket_name} already exists - {e}")
@@ -80,3 +85,10 @@ def update_bucket(params, event, context):
   bucket_name = params['BucketName']
   print(f"ignoring updates to bucket {bucket_name}")
   print(f"TODO implement updates")
+
+def add_notification(Notifications, Bucket):
+                bucket_notification = s3.BucketNotification(Bucket)
+                response = bucket_notification.put(
+                  NotificationConfiguration = Notifications
+                  )
+                print("Put notification request completed....")  

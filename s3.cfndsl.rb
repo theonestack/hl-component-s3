@@ -15,17 +15,28 @@ CloudFormation do
                 lambda_config = {}
                 lambda_config['Function'] = values['function']
                 lambda_config['Event'] = values['event']
+                lambda_config['NotificationFilter'] = values['filter']
                 notification_configurations['LambdaConfigurations'] << lambda_config
             end
         end
         if config['notifications'].has_key?('sqs')
-            notification_configurations['QueueConfiguration'] = []
+            notification_configurations['QueueConfigurations'] = []
             config['notifications']['sqs'].each do |values|
                 sqs_config = {}
                 sqs_config['Queue'] = values['queue']
                 sqs_config['Event'] = values['event']
                 sqs_config['NotificationFilter'] = values['filter']
-                notification_configurations['QueueConfiguration'] << sqs_config
+                notification_configurations['QueueConfigurations'] << sqs_config
+            end
+        end   
+         if config['notifications'].has_key?('sns')
+            notification_configurations['TopicConfigurations'] = []
+            config['notifications']['sns'].each do |values|
+                sns_config = {}
+                sns_config['Topic'] = values['topic']
+                sns_config['Event'] = values['event']
+                sns_config['NotificationFilter'] = values['filter']
+                notification_configurations['TopicConfigurations'] << sns_config
             end
         end
 
@@ -38,6 +49,7 @@ CloudFormation do
         Property 'ServiceToken',FnGetAtt('S3BucketCreateOnlyCR','Arn')
         Property 'Region', Ref('AWS::Region')
         Property 'BucketName', FnSub(bucket_name)
+        Property 'Notifications', FnSub(notification_configurations)
       end
     else
 
