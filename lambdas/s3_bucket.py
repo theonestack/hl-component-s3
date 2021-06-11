@@ -100,18 +100,14 @@ def add_notification(Notifications, Bucket):
         sw=Notifications['LambdaConfigurations'][0]
         sw['Events'] = sw.pop('Event')
         sw['LambdaFunctionArn'] = sw.pop('Function')  
-        Notifications['lambda_function_configurations'] = Notifications.pop('LambdaConfigurations')
       if "QueueConfigurations" in Notifications:
         sw=Notifications['QueueConfigurations'][0]
         sw['Events'] = sw.pop('Event')
         sw['QueueArn'] = sw.pop('Queue')  
-        Notifications['queue_configurations'] = Notifications.pop('QueueConfigurations')
       if "TopicConfigurations" in Notifications:
         sw=Notifications['TopicConfigurations'][0]
         sw['Events'] = sw.pop('Event')
         sw['QueueArn'] = sw.pop('Queue')
-        notifications['topic_configurations'] = notifications.pop('TopicConfigurations')
-
 
       response = bucket_notification.put(
           NotificationConfiguration = Notifications
