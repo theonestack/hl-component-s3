@@ -115,9 +115,9 @@ def add_notification(Notifications, Bucket):
       response = bucket_notification.put(
           NotificationConfiguration = Notifications
           )
-        print(f"Put notification request completed... for {Bucket} :)")  
+      print(f"Put notification request completed... for {Bucket} :)")  
   except Exception as e:
-    print(f"bucket notification for {Bucket} failed :( - {e}")
+      print(f"bucket notification for {Bucket} failed :( - {e}")
 def delete_notification(Bucket):
     try:
         bucket_notification = s3.BucketNotification(Bucket)
