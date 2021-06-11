@@ -103,6 +103,9 @@ def add_notification(Notifications, Bucket):
         if "Filter" in Notifications['QueueConfigurations'][0]:
             sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
             sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+            for i in range((len(sw['Filter']['Key']['FilterRules']))):
+                sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+                sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
       if "QueueConfigurations" in Notifications:
         sw=Notifications['QueueConfigurations'][0]
         sw['Events'] = sw.pop('Event')
@@ -110,6 +113,9 @@ def add_notification(Notifications, Bucket):
         if "Filter" in sw:
             sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
             sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+            for i in range((len(sw['Filter']['Key']['FilterRules']))):
+                sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+                sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
       if "TopicConfigurations" in Notifications:
         sw=Notifications['TopicConfigurations'][0]
         sw['Events'] = sw.pop('Event')
@@ -117,7 +123,9 @@ def add_notification(Notifications, Bucket):
         if "Filter" in sw:
             sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
             sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
-
+            for i in range((len(sw['Filter']['Key']['FilterRules']))):
+                sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+                sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
       response = bucket_notification.put(
           NotificationConfiguration = Notifications
           )
