@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import json
 import cr_response
 
+s3r = boto3.resource('s3')
 
 def handler(event, context):
     print(f"Received event:{json.dumps(event)}")
@@ -93,7 +94,7 @@ def update_bucket(params, event, context):
 
 def add_notification(Notifications, Bucket):
   try:
-      bucket_notification = s3.BucketNotification(Bucket)
+      bucket_notification = s3r.BucketNotification(Bucket)
         
       if "LambdaConfigurations" in Notifications:
         sw=Notifications['LambdaConfigurations'][0]
@@ -120,7 +121,7 @@ def add_notification(Notifications, Bucket):
       print(f"bucket notification for {Bucket} failed :( - {e}")
 def delete_notification(Bucket):
     try:
-        bucket_notification = s3.BucketNotification(Bucket)
+        bucket_notification = s3r.BucketNotification(Bucket)
         response = bucket_notification.put(
             NotificationConfiguration={}
             )
