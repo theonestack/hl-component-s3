@@ -18,8 +18,10 @@ def handler(event, context):
 
     bucket = params['BucketName']
     region = params['Region']
-    notifications = params['Notifications']
-
+    notifications = []
+    if "Notifications" in params:
+        notifications = params['Notifications']
+    
     arn = f'arn:aws:s3:::{bucket}'
 
     # Accessed using the path-style URL.
@@ -64,7 +66,7 @@ def create_bucket(params, event, context):
     if params['Region'] == 'us-east-1':
       bucket = s3.create_bucket(Bucket=bucket_name)
       if notifications:
-          add_notification(notifications, bucket_name)
+              add_notification(notifications, bucket_name)
     else:
       bucket = s3.create_bucket(
                   Bucket=bucket_name,
@@ -72,7 +74,7 @@ def create_bucket(params, event, context):
                     'LocationConstraint': params['Region']
                   }
                   )
-      if notifications:
+      if notifications :
           add_notification(notifications, bucket_name)
     print(f"created bucket {bucket_name} in {bucket['Location']}")
   except Exception as e:
@@ -90,13 +92,40 @@ def update_bucket(params, event, context):
   print(f"TODO implement more update functions")
 
 def add_notification(Notifications, Bucket):
-                bucket_notification = s3.BucketNotification(Bucket)
-                response = bucket_notification.put(
-                  NotificationConfiguration = Notifications
-                  )
-                print("Put notification request completed....")  
+  try:
+        bucket_notification = s3.BucketNotification(Bucket)
+        
+          if "LambdaConfigurations" in Notifications:
+            sw=Notifications['LambdaConfigurations'][0]
+            sw['Events'] = sw.pop('Event')
+            sw['LambdaFunctionArn'] = sw.pop('Function')  
+            Notifications['lambda_function_configurations'] = Notifications.pop('LambdaConfigurations')
+          if "QueueConfigurations" in Notifications:
+            sw=Notifications['QueueConfigurations'][0]
+            sw['Events'] = sw.pop('Event')
+            sw['QueueArn'] = sw.pop('Queue')  
+            Notifications['queue_configurations'] = Notifications.pop('QueueConfigurations')
+          if "TopicConfigurations" in Notifications:
+            sw=Notifications['TopicConfigurations'][0]
+            sw['Events'] = sw.pop('Event')
+            sw['QueueArn'] = sw.pop('Queue')
+            notifications['topic_configurations'] = notifications.pop('TopicConfigurations')
+
+
+        response = bucket_notification.put(
+          NotificationConfiguration = Notifications
+          )
+        print(f"Put notification request completed... for {Bucket} :)")  
+  except Exception as e:
+    print(f"bucket notification for {Bucket} failed :( - {e}")
 def delete_notification(Bucket):
-                bucket_notification = s3.BucketNotification(Bucket)
-                response = bucket_notification.put(
-                    NotificationConfiguration={}
-                )                
+    try:
+        bucket_notification = s3.BucketNotification(Bucket)
+        response = bucket_notification.put(
+            NotificationConfiguration={}
+            )
+        
+        print(f"Put notification deletion request completed... for {Bucket} :)")  
+
+    except Exception as e:
+        print(f"bucket notification deletion for {Bucket} failed :( - {e}")

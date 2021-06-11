@@ -15,7 +15,7 @@ CloudFormation do
                 lambda_config = {}
                 lambda_config['Function'] = values['function']
                 lambda_config['Event'] = values['event']
-                lambda_config['NotificationFilter'] = values['filter']
+                lambda_config['Filter'] = values['filter']
                 notification_configurations['LambdaConfigurations'] << lambda_config
             end
         end
@@ -25,7 +25,7 @@ CloudFormation do
                 sqs_config = {}
                 sqs_config['Queue'] = values['queue']
                 sqs_config['Event'] = values['event']
-                sqs_config['NotificationFilter'] = values['filter']
+                sqs_config['Filter'] = values['filter']
                 notification_configurations['QueueConfigurations'] << sqs_config
             end
         end   
@@ -35,7 +35,7 @@ CloudFormation do
                 sns_config = {}
                 sns_config['Topic'] = values['topic']
                 sns_config['Event'] = values['event']
-                sns_config['NotificationFilter'] = values['filter']
+                sns_config['Filter'] = values['filter']
                 notification_configurations['TopicConfigurations'] << sns_config
             end
         end
