@@ -81,12 +81,13 @@ def create_bucket(params, event, context):
 def update_bucket(params, event, context):
   if 'BucketName' not in params:
     raise Exception('BucketName parameter is required')
-
+  notifications = params['Notifications']
   bucket_name = params['BucketName']
   if notifications:
       add_notification(notifications, bucket_name)
-  print(f"ignoring updates to bucket {bucket_name}")
-  print(f"TODO implement updates")
+  else:
+      delete_notification(bucket_name)
+  print(f"TODO implement more update functions")
 
 def add_notification(Notifications, Bucket):
                 bucket_notification = s3.BucketNotification(Bucket)
@@ -94,3 +95,8 @@ def add_notification(Notifications, Bucket):
                   NotificationConfiguration = Notifications
                   )
                 print("Put notification request completed....")  
+def delete_notification(Bucket):
+                bucket_notification = s3.BucketNotification(Bucket)
+                response = bucket_notification.put(
+                    NotificationConfiguration={}
+                )                
