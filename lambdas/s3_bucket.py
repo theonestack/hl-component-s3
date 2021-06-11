@@ -126,6 +126,7 @@ def add_notification(Notifications, Bucket):
             for i in range((len(sw['Filter']['Key']['FilterRules']))):
                 sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
                 sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+      print(f"transformed data is: {Notifications}")
       response = bucket_notification.put(
           NotificationConfiguration = Notifications
           )
