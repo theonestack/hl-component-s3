@@ -90,57 +90,50 @@ def update_bucket(params, event, context):
       add_notification(notifications, bucket_name)
   else:
       delete_notification(bucket_name)
-  print(f"TODO implement more update functions")
+      print(f"Put notification deletion request completed... for {Bucket} :)")  
 
 def add_notification(Notifications, Bucket):
-  try:
-      bucket_notification = s3r.BucketNotification(Bucket)
-        
-      if "LambdaConfigurations" in Notifications:
-        sw=Notifications['LambdaConfigurations'][0]
-        sw['Events'] = sw.pop('Event')
-        sw['LambdaFunctionArn'] = sw.pop('Function')  
-        if "Filter" in Notifications['QueueConfigurations'][0]:
-            sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
-            sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
-            for i in range((len(sw['Filter']['Key']['FilterRules']))):
-                sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
-                sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
-      if "QueueConfigurations" in Notifications:
-        sw=Notifications['QueueConfigurations'][0]
-        sw['Events'] = sw.pop('Event')
-        sw['QueueArn'] = sw.pop('Queue')  
-        if "Filter" in sw:
-            sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
-            sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
-            for i in range((len(sw['Filter']['Key']['FilterRules']))):
-                sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
-                sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
-      if "TopicConfigurations" in Notifications:
-        sw=Notifications['TopicConfigurations'][0]
-        sw['Events'] = sw.pop('Event')
-        sw['QueueArn'] = sw.pop('Queue')
-        if "Filter" in sw:
-            sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
-            sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
-            for i in range((len(sw['Filter']['Key']['FilterRules']))):
-                sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
-                sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
-      print(f"transformed data is: {Notifications}")
-      response = bucket_notification.put(
-          NotificationConfiguration = Notifications
-          )
-      print(f"Put notification request completed... for {Bucket} :)")  
-  except Exception as e:
-      print(f"bucket notification for {Bucket} failed :( - {e}")
-def delete_notification(Bucket):
-    try:
-        bucket_notification = s3r.BucketNotification(Bucket)
-        response = bucket_notification.put(
-            NotificationConfiguration={}
-            )
-        
-        print(f"Put notification deletion request completed... for {Bucket} :)")  
+  bucket_notification = s3r.BucketNotification(Bucket)
+    
+  if "LambdaConfigurations" in Notifications:
+    sw=Notifications['LambdaConfigurations'][0]
+    sw['Events'] = sw.pop('Event')
+    sw['LambdaFunctionArn'] = sw.pop('Function')  
+    if "Filter" in Notifications['QueueConfigurations'][0]:
+        sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
+        sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+        for i in range((len(sw['Filter']['Key']['FilterRules']))):
+            sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+            sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+  if "QueueConfigurations" in Notifications:
+    sw=Notifications['QueueConfigurations'][0]
+    sw['Events'] = sw.pop('Event')
+    sw['QueueArn'] = sw.pop('Queue')  
+    if "Filter" in sw:
+        sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
+        sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+        for i in range((len(sw['Filter']['Key']['FilterRules']))):
+            sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+            sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+  if "TopicConfigurations" in Notifications:
+    sw=Notifications['TopicConfigurations'][0]
+    sw['Events'] = sw.pop('Event')
+    sw['QueueArn'] = sw.pop('Queue')
+    if "Filter" in sw:
+        sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
+        sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+        for i in range((len(sw['Filter']['Key']['FilterRules']))):
+            sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+            sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+  print(f"transformed data is: {Notifications}")
+  response = bucket_notification.put(
+      NotificationConfiguration = Notifications
+      )
+  print(f"Put notification request completed... for {Bucket} :)")  
 
-    except Exception as e:
-        print(f"bucket notification deletion for {Bucket} failed :( - {e}")
+def delete_notification(Bucket):
+    bucket_notification = s3r.BucketNotification(Bucket)
+    response = bucket_notification.put(
+        NotificationConfiguration={}
+        )
+    print(f"Put notification delete request completed... for {Bucket} :)")  
