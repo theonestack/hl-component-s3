@@ -90,7 +90,7 @@ def update_bucket(params, event, context):
       add_notification(notifications, bucket_name)
   else:
       delete_notification(bucket_name)
-      print(f"Put notification deletion request completed... for {Bucket} :)")  
+      print(f"Put notification deletion request completed... :)")  
 
 def add_notification(Notifications, Bucket):
   bucket_notification = s3r.BucketNotification(Bucket)
