@@ -15,7 +15,7 @@ CloudFormation do
                 lambda_config = {}
                 lambda_config['Function'] = values['function']
                 lambda_config['Event'] = values['event']
-                lambda_config['Filter'] = values['filter']
+                lambda_config['Filter'] = values['filter'] if values.has_key?('filter')
                 notification_configurations['LambdaConfigurations'] << lambda_config
             end
         end
