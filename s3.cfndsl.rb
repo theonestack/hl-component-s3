@@ -15,9 +15,31 @@ CloudFormation do
                 lambda_config = {}
                 lambda_config['Function'] = values['function']
                 lambda_config['Event'] = values['event']
+                lambda_config['Filter'] = values['filter'] if values.has_key?('filter')
                 notification_configurations['LambdaConfigurations'] << lambda_config
             end
         end
+        if config['notifications'].has_key?('sqs')
+            notification_configurations['QueueConfigurations'] = []
+            config['notifications']['sqs'].each do |values|
+                sqs_config = {}
+                sqs_config['Queue'] = values['queue']
+                sqs_config['Event'] = values['event']
+                sqs_config['Filter'] = values['filter']
+                notification_configurations['QueueConfigurations'] << sqs_config
+            end
+        end   
+         if config['notifications'].has_key?('sns')
+            notification_configurations['TopicConfigurations'] = []
+            config['notifications']['sns'].each do |values|
+                sns_config = {}
+                sns_config['Topic'] = values['topic']
+                sns_config['Event'] = values['event']
+                sns_config['Filter'] = values['filter']
+                notification_configurations['TopicConfigurations'] << sns_config
+            end
+        end
+
     end
 
 
@@ -27,9 +49,14 @@ CloudFormation do
         Property 'ServiceToken',FnGetAtt('S3BucketCreateOnlyCR','Arn')
         Property 'Region', Ref('AWS::Region')
         Property 'BucketName', FnSub(bucket_name)
+        Property 'Notifications', notification_configurations
       end
     else
+
+      Condition("#{safe_bucket_name}SetLogFilePrefix", FnNot(FnEquals(Ref("#{safe_bucket_name}LogFilePrefix"), ''))) if config.has_key? 'enable_logging' and config['enable_logging']
+
       S3_Bucket("#{safe_bucket_name}") do
+        AccessControl config['access_control'] if config.has_key?('access_control')
         DeletionPolicy 'Retain' if (config.has_key?('deletion_policy') && config['deletion_policy'] == 'Retain' )
         BucketName FnSub(bucket_name)
         Tags([
@@ -42,6 +69,12 @@ CloudFormation do
         AccelerateConfiguration({ AccelerationStatus: config['acceleration_status'] }) if config.has_key?('acceleration_status')
         PublicAccessBlockConfiguration config['public_access_block_configuration'] if config.has_key?('public_access_block_configuration')
         VersioningConfiguration({ Status: config['versioning_configuration'] }) if config.has_key?('versioning_configuration')
+        IntelligentTieringConfiguration(config['intelligent_tiering_configuration']) if config.has_key?('intelligent_tiering_configuration')
+        BucketEncryption config['bucket_encryption'] if config.has_key?('bucket_encryption')
+        LoggingConfiguration ({
+          DestinationBucketName: Ref("#{safe_bucket_name}AccessLogsBucket"),
+          LogFilePrefix: FnIf("#{safe_bucket_name}SetLogFilePrefix", Ref("#{safe_bucket_name}LogFilePrefix"), Ref('AWS::NoValue'))
+        }) if config.has_key?('enable_logging') && config['enable_logging']
       end
     end
 

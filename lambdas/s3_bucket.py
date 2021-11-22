@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import json
 import cr_response
 
+s3r = boto3.resource('s3')
 
 def handler(event, context):
     print(f"Received event:{json.dumps(event)}")
@@ -18,7 +19,10 @@ def handler(event, context):
 
     bucket = params['BucketName']
     region = params['Region']
-
+    notifications = []
+    if "Notifications" in params:
+        notifications = params['Notifications']
+    
     arn = f'arn:aws:s3:::{bucket}'
 
     # Accessed using the path-style URL.
@@ -62,6 +66,8 @@ def create_bucket(params, event, context):
     s3 = boto3.client('s3')
     if params['Region'] == 'us-east-1':
       bucket = s3.create_bucket(Bucket=bucket_name)
+      if notifications:
+              add_notification(notifications, bucket_name)
     else:
       bucket = s3.create_bucket(
                   Bucket=bucket_name,
@@ -69,6 +75,8 @@ def create_bucket(params, event, context):
                     'LocationConstraint': params['Region']
                   }
                   )
+      if notifications :
+          add_notification(notifications, bucket_name)
     print(f"created bucket {bucket_name} in {bucket['Location']}")
   except Exception as e:
     print(f"bucket {bucket_name} already exists - {e}")
@@ -76,7 +84,56 @@ def create_bucket(params, event, context):
 def update_bucket(params, event, context):
   if 'BucketName' not in params:
     raise Exception('BucketName parameter is required')
-
+  notifications = params['Notifications']
   bucket_name = params['BucketName']
-  print(f"ignoring updates to bucket {bucket_name}")
-  print(f"TODO implement updates")
+  if notifications:
+      add_notification(notifications, bucket_name)
+  else:
+      delete_notification(bucket_name)
+      print(f"Put notification deletion request completed... :)")  
+
+def add_notification(Notifications, Bucket):
+  bucket_notification = s3r.BucketNotification(Bucket)
+    
+  if "LambdaConfigurations" in Notifications:
+    sw=Notifications['LambdaConfigurations'][0]
+    sw['Events'] = sw.pop('Event')
+    sw['LambdaFunctionArn'] = sw.pop('Function')  
+    if "Filter" in Notifications['QueueConfigurations'][0]:
+        sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
+        sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+        for i in range((len(sw['Filter']['Key']['FilterRules']))):
+            sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+            sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+  if "QueueConfigurations" in Notifications:
+    sw=Notifications['QueueConfigurations'][0]
+    sw['Events'] = sw.pop('Event')
+    sw['QueueArn'] = sw.pop('Queue')  
+    if "Filter" in sw:
+        sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
+        sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+        for i in range((len(sw['Filter']['Key']['FilterRules']))):
+            sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+            sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+  if "TopicConfigurations" in Notifications:
+    sw=Notifications['TopicConfigurations'][0]
+    sw['Events'] = sw.pop('Event')
+    sw['QueueArn'] = sw.pop('Queue')
+    if "Filter" in sw:
+        sw['Filter']['Key'] = sw['Filter'].pop('S3Key')
+        sw['Filter']['Key']['FilterRules'] = sw['Filter']['Key'].pop('Rules')
+        for i in range((len(sw['Filter']['Key']['FilterRules']))):
+            sw['Filter']['Key']['FilterRules'][i]['Name'] = sw['Filter']['Key']['FilterRules'][i].pop('name')
+            sw['Filter']['Key']['FilterRules'][i]['Value'] = sw['Filter']['Key']['FilterRules'][i].pop('value') 
+  print(f"transformed data is: {Notifications}")
+  response = bucket_notification.put(
+      NotificationConfiguration = Notifications
+      )
+  print(f"Put notification request completed... for {Bucket} :)")  
+
+def delete_notification(Bucket):
+    bucket_notification = s3r.BucketNotification(Bucket)
+    response = bucket_notification.put(
+        NotificationConfiguration={}
+        )
+    print(f"Put notification delete request completed... for {Bucket} :)")  
