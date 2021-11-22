@@ -1,26 +1,56 @@
-![build-status](https://travis-ci.com/theonestack/hl-component-s3.svg?branch=master)
+# s3 CfHighlander component
 
-### Cfhighlander S3 component
+## Parameters
 
-```bash
+| Name | Use | Default | Global | Type | Allowed Values |
+| ---- | --- | ------- | ------ | ---- | -------------- |
+| EnvironmentName | Tagging | dev | true | string
+| EnvironmentType | Tagging | development | true | string | ['development','production']
+## Outputs/Exports
 
-# install highlander gem
-$ gem install cfhighlander
+| Name | Value | Exported |
+| ---- | ----- | -------- |
+| DnsDomainZoneId | The hosted zone ID that was created, if it was created | false
 
-# build and validate standalone component
-$ cfhighlander cfcompile --validate s3
+## Included Components
 
+<none>
+
+## Example Configuration
+### Highlander
+```
+  Component name: 's3', template: 's3'
 ```
 
+### S3 Configuration
 
-### Parameters
+```
+buckets:
+  normal-bucket:
+    type: default
+  create-only-bucket:
+    bucket_name: ${EnvironmentName}.mybucket
+    type: create_if_not_exists
+    ssm_parameter: /app/my-create-only-bucket #creates a ssm parameter with bucket name
+```
 
-TBD
+## Cfhighlander Setup
 
-### Configuration options
+install cfhighlander [gem](https://github.com/theonestack/cfhighlander)
 
-TBD
+```bash
+gem install cfhighlander
+```
 
-### Outputs
+or via docker
 
-TBD
+```bash
+docker pull theonestack/cfhighlander
+```
+## Testing Components
+
+Running the tests
+
+```bash
+cfhighlander cftest s3
+```
