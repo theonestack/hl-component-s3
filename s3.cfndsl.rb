@@ -42,6 +42,15 @@ CloudFormation do
 
     end
 
+    cors_configuration = {}
+    if config.has_key?('cors')
+      cors_rules = []
+      config['cors'].each do |cors_rule|
+        cors_rules.append(cors_rule)
+      end
+      cors_configuration['CorsRules'] = cors_rules
+    end
+
 
     if bucket_type == 'create_if_not_exists'
       Resource("#{safe_bucket_name}") do
@@ -49,7 +58,8 @@ CloudFormation do
         Property 'ServiceToken',FnGetAtt('S3BucketCreateOnlyCR','Arn')
         Property 'Region', Ref('AWS::Region')
         Property 'BucketName', FnSub(bucket_name)
-        Property 'Notifications', notification_configurations
+        Property 'Notifications', notification_configurations unless notification_configurations.empty?
+        Property 'CorsConfiguration', cors_configuration unless cors_configuration.empty?
       end
     else
 
@@ -64,6 +74,7 @@ CloudFormation do
           { Key: 'Environment', Value: Ref("EnvironmentName") },
           { Key: 'EnvironmentType', Value: Ref("EnvironmentType") }
         ])
+        CorsConfiguration cors_configuration unless cors_configuration.empty?
         NotificationConfiguration notification_configurations unless notification_configurations.empty?
         LifecycleConfiguration({ Rules: config['lifecycle_rules'] }) if config.has_key?('lifecycle_rules')
         AccelerateConfiguration({ AccelerationStatus: config['acceleration_status'] }) if config.has_key?('acceleration_status')

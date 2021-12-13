@@ -19,9 +19,6 @@ def handler(event, context):
 
     bucket = params['BucketName']
     region = params['Region']
-    notifications = []
-    if "Notifications" in params:
-        notifications = params['Notifications']
     
     arn = f'arn:aws:s3:::{bucket}'
 
@@ -61,36 +58,63 @@ def create_bucket(params, event, context):
   if 'BucketName' not in params:
     raise Exception('BucketName parameter is required')
 
+  notifications = params['Notifications'] if 'Notifications' in params else None
   bucket_name = params['BucketName']
+  cors_configuration = params['CorsConfiguration'] if 'CorsConfiguration' in params else None
+  bucket_already_exists = True
+
   try:
     s3 = boto3.client('s3')
-    if params['Region'] == 'us-east-1':
-      bucket = s3.create_bucket(Bucket=bucket_name)
-      if notifications:
-              add_notification(notifications, bucket_name)
-    else:
-      bucket = s3.create_bucket(
-                  Bucket=bucket_name,
-                  CreateBucketConfiguration={
-                    'LocationConstraint': params['Region']
-                  }
-                  )
-      if notifications :
-          add_notification(notifications, bucket_name)
-    print(f"created bucket {bucket_name} in {bucket['Location']}")
+    response = s3.head_bucket(Bucket=bucket_name)
+    print(f"bucket {bucket_name} does already existing so we need don't need to create it")
   except Exception as e:
-    print(f"bucket {bucket_name} already exists - {e}")
+    if "404" in str(e):
+      bucket_already_exists = False
+      print(f"bucket {bucket_name} does not already existing so we need to create it")
+    else:
+      print(f"error:{e}\n")
+      raise e
+
+
+  options = {'Bucket' : bucket_name}
+  if params['Region'] != 'us-east-1':
+    options = dict({'CreateBucketConfiguration' : {'LocationConstraint':  params['Region']}}, **options)
+
+  if bucket_already_exists:
+    print(f"bucket {bucket_name} exists")
+  else:
+    bucket = s3.create_bucket(**options)
+    print(f"created bucket {bucket_name} in {bucket['Location']}")
+
+  if notifications:
+    add_notification(notifications, bucket_name)
+
+  if cors_configuration:
+    add_cors(cors_configuration, bucket_name)
+    
+  
+
 
 def update_bucket(params, event, context):
   if 'BucketName' not in params:
     raise Exception('BucketName parameter is required')
-  notifications = params['Notifications']
+
+  notifications = params['Notifications'] if 'Notifications' in params else None
   bucket_name = params['BucketName']
+  cors_configuration = params['CorsConfiguration'] if 'CorsConfiguration' in params else None
+
   if notifications:
       add_notification(notifications, bucket_name)
   else:
       delete_notification(bucket_name)
-      print(f"Put notification deletion request completed... :)")  
+      print(f"Put notification deletion request completed... :)") 
+
+  if cors_configuration:
+    print(f"cors: {cors_configuration}\n")
+    add_cors(cors_configuration, bucket_name)
+  else:
+      delete_cors(bucket_name)
+      print(f"Cors configuration deletion request completed... :)") 
 
 def add_notification(Notifications, Bucket):
   bucket_notification = s3r.BucketNotification(Bucket)
@@ -136,4 +160,22 @@ def delete_notification(Bucket):
     response = bucket_notification.put(
         NotificationConfiguration={}
         )
-    print(f"Put notification delete request completed... for {Bucket} :)")  
+    print(f"Put notification delete request completed... for {Bucket} :)")
+
+
+def add_cors(cors_configuration, bucket_name):
+  bucket_cors = s3r.BucketCors(bucket_name)
+  cors_rules = []
+
+  bucket_cors.put(
+    CORSConfiguration={
+      "CORSRules": cors_configuration['CorsRules']
+    }
+  )
+  print(f"Put cors configuration request completed... for {bucket_name} :)")  
+
+
+def delete_cors(bucket_name):
+  bucket_cors = s3r.BucketCors(bucket_name)
+  response = bucket_cors.delete()
+  print(f"Put cors configuration delete request completed... for {bucket_name} :)")

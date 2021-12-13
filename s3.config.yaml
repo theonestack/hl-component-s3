@@ -16,6 +16,9 @@ s3_custom_resources:
         - s3:DeleteBucket
         - s3:PutBucketNotification
         - s3:GetBucketLocation
+        - s3:PutBucketCors
+        - s3:GetBucketCors
+        - s3:ListBucket
       resource: '*'
   roles:
     S3CustomResource:

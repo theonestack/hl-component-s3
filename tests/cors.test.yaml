@@ -1,0 +1,29 @@
+test_metadata:
+  type: config
+  name: bucket with cors config
+  description: Create bucket and add cors config
+
+
+buckets:
+  normal-bucket:
+    type: default
+    cors:
+      - AllowedOrigins: 
+          - '*'
+        AllowedMethods:
+          - 'GET'
+          - 'PUT'
+          - 'POST'
+        AllowedHeaders:
+          - '*'
+  exists-bucket:
+    type: create_if_not_exists
+    cors:
+      - AllowedOrigins: 
+          - '*'
+        AllowedMethods:
+          - 'GET'
+          - 'PUT'
+          - 'POST'
+        AllowedHeaders:
+          - '*'
