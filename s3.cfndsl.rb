@@ -99,7 +99,10 @@ CloudFormation do
     end
 
     Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
-    Output(safe_bucket_name + 'DomainName') { Value(FnGetAtt(safe_bucket_name, 'DomainName')) }
+    Output(safe_bucket_name + 'DomainName') do 
+      Value FnGetAtt(safe_bucket_name, 'DomainName')
+      Export FnSub("#{bucket_name}-domain-name")
+    end
 
     if origin_access_identity
       CloudFront_CloudFrontOriginAccessIdentity("#{safe_bucket_name}OriginAccessIdentity") {
