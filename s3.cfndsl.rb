@@ -101,7 +101,7 @@ CloudFormation do
     Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
     Output(safe_bucket_name + 'DomainName') do 
       Value FnGetAtt(safe_bucket_name, 'DomainName')
-      Export FnSub("#{bucket_name}-domain-name")
+      Export FnSub("${EnvironmentName}-#{safe_bucket_name}-domain-name")
     end
 
     if origin_access_identity
@@ -113,7 +113,7 @@ CloudFormation do
 
       Output("#{safe_bucket_name}OriginAccessIdentity") do
         Value Ref("#{safe_bucket_name}OriginAccessIdentity")
-        Export FnSub("#{bucket_name}-origin-access-identity")
+        Export FnSub("${EnvironmentName}-#{safe_bucket_name}-origin-access-identity")
       end
     end
 
