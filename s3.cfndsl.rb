@@ -6,6 +6,7 @@ CloudFormation do
     safe_bucket_name = bucket.capitalize.gsub('_','').gsub('-','')
     bucket_type = config.has_key?('type') ? config['type'] : 'default'
     bucket_name = config.has_key?('bucket_name') ? config['bucket_name'] : bucket
+    origin_access_identity = config.has_key?('origin_access_identity') ? config['origin_access_identity'] : false
 
     notification_configurations = {}
     if config.has_key?('notifications')
@@ -98,30 +99,55 @@ CloudFormation do
     end
 
     Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
-    Output(safe_bucket_name + 'DomainName') { Value(FnGetAtt(safe_bucket_name, 'DomainName')) }
-
-
-    if config.has_key?('bucket-policy')
-        policy_document = {}
-        policy_document["Statement"] = []
-
-        config['bucket-policy'].each do |sid, statement_config|
-            statement = {}
-            statement["Sid"] = sid
-            statement['Effect'] = statement_config.has_key?('effect') ? statement_config['effect'] : "Allow"
-            statement['Principal'] = statement_config.has_key?('principal') ? statement_config['principal'] : {AWS: FnSub("arn:aws:iam::${AWS::AccountId}:root")}
-            statement['Resource'] = statement_config.has_key?('resource') ? statement_config['resource'] : [FnJoin("",["arn:aws:s3:::", Ref(safe_bucket_name)]), FnJoin("",["arn:aws:s3:::", Ref(safe_bucket_name), "/*"])]
-            statement['Action'] = statement_config.has_key?('actions') ? statement_config['actions'] : ["s3:*"]
-            statement['Condition'] = statement_config['conditions'] if statement_config.has_key?('conditions')
-            policy_document["Statement"] << statement
-        end
-
-        S3_BucketPolicy("#{safe_bucket_name}Policy") do
-            Bucket Ref(safe_bucket_name)
-            PolicyDocument policy_document
-        end
+    Output(safe_bucket_name + 'DomainName') do 
+      Value FnGetAtt(safe_bucket_name, 'DomainName')
+      Export FnSub("#{bucket_name}-domain-name")
     end
 
+    if origin_access_identity
+      CloudFront_CloudFrontOriginAccessIdentity("#{safe_bucket_name}OriginAccessIdentity") {
+        CloudFrontOriginAccessIdentityConfig({
+          Comment: FnSub(bucket_name)
+        })
+      }
+
+      Output("#{safe_bucket_name}OriginAccessIdentity") do
+        Value Ref("#{safe_bucket_name}OriginAccessIdentity")
+        Export FnSub("#{bucket_name}-origin-access-identity")
+      end
+    end
+
+    if config.has_key?('bucket-policy') || origin_access_identity
+      policy_document = {}
+      policy_document["Statement"] = []
+
+      if config.has_key?('bucket-policy')
+        config['bucket-policy'].each do |sid, statement_config|
+          statement = {}
+          statement["Sid"] = sid
+          statement['Effect'] = statement_config.has_key?('effect') ? statement_config['effect'] : "Allow"
+          statement['Principal'] = statement_config.has_key?('principal') ? statement_config['principal'] : {AWS: FnSub("arn:aws:iam::${AWS::AccountId}:root")}
+          statement['Resource'] = statement_config.has_key?('resource') ? statement_config['resource'] : [FnJoin("",["arn:aws:s3:::", Ref(safe_bucket_name)]), FnJoin("",["arn:aws:s3:::", Ref(safe_bucket_name), "/*"])]
+          statement['Action'] = statement_config.has_key?('actions') ? statement_config['actions'] : ["s3:*"]
+          statement['Condition'] = statement_config['conditions'] if statement_config.has_key?('conditions')
+          policy_document["Statement"] << statement
+        end
+      end
+
+      if origin_access_identity
+        statement = {}
+        statement['Effect'] = 'Allow'
+        statement['Principal'] = { CanonicalUser: { "Fn::GetAtt" => ["#{safe_bucket_name}OriginAccessIdentity", 'S3CanonicalUserId'] }}
+        statement['Resource'] = FnJoin('', [ 'arn:aws:s3:::', Ref(safe_bucket_name), '/*'])
+        statement['Action'] = 's3:GetObject'
+        policy_document["Statement"] << statement
+      end
+
+      S3_BucketPolicy("#{safe_bucket_name}Policy") do
+        Bucket Ref(safe_bucket_name)
+        PolicyDocument policy_document
+      end
+    end
 
   end
 

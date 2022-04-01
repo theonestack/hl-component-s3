@@ -1,0 +1,11 @@
+test_metadata:
+  type: config
+  name: Bucket and OAI
+  description: Create bucket and Origin Access Identity
+
+
+buckets:
+  cloudfront-bucket:
+    type: default
+    bucket_name: ${EnvironmentName}-cloudfront-bucket
+    origin_access_identity: true
