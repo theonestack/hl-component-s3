@@ -19,19 +19,16 @@ def handler(event, context):
 
     bucket = params['BucketName']
     region = params['Region']
-    
-    arn = f'arn:aws:s3:::{bucket}'
 
-    # Accessed using the path-style URL.
-    # https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html#access-bucket-intro
-    if region == 'us-east-1':
-        domain_name = f's3.amazonaws.com/{bucket}'
-    else:
-        domain_name = f's3.{region}.amazonaws.com/{bucket}'
+    # Fn::GetAtt feature parity with AWS::S3::Bucket cloudformation resource
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
 
     data = {
-        'DomainName' : domain_name,
-        'Arn': arn
+        'Arn': f'arn:aws:s3:::{bucket}',
+        'DomainName': f'{bucket}.s3.amazonaws.com',
+        'DualStackDomainName': f'{bucket}.s3.dualstack.{region}.amazonaws.com',
+        'RegionalDomainName': f'{bucket}.s3.{region}.amazonaws.com',
+        'WebsiteURL': f'http://{bucket}.s3-website.{region}.amazonaws.com'
     }
 
     try:
