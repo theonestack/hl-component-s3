@@ -1,7 +1,7 @@
 test_metadata:
   type: config
-  name: bucket with lifecycle rules
-  description: Create bucket and enable lambda notifcation on creation of new objects
+  name: lifecycle_rules
+  description: Create bucket and enable lambda notification on creation of new objects
 
 
 buckets:

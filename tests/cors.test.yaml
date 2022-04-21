@@ -1,6 +1,6 @@
 test_metadata:
   type: config
-  name: bucket with cors config
+  name: cors
   description: Create bucket and add cors config
 
 

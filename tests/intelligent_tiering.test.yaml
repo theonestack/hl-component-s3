@@ -1,3 +1,8 @@
+test_metadata:
+  type: config
+  name: intelligent_tiering
+  description: Create bucket with intelligent tiering
+
 buckets:
   MuhBucket:
     bucket_name: kyle-test-intelligent-tier
@@ -21,3 +26,4 @@ buckets:
           -
             AccessTier: 'DEEP_ARCHIVE_ACCESS'
             Days: 365
+

@@ -1,6 +1,6 @@
 test_metadata:
   type: config
-  name: Bucket and policy
+  name: bucket_policy
   description: Create bucket and bucket policy
 
 
