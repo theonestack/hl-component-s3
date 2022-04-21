@@ -1,6 +1,6 @@
 test_metadata:
   type: config
-  name: bucket with public block
+  name: public_access_block_configuration
   description: Create bucket and enable public block
 
 

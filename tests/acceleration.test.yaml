@@ -1,6 +1,6 @@
 test_metadata:
   type: config
-  name: bucket with global acceleration
+  name: acceleration
   description: Create bucket and enable global acceleration
 
 

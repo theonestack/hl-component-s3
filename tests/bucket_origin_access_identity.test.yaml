@@ -1,6 +1,6 @@
 test_metadata:
   type: config
-  name: Bucket and OAI
+  name: bucket_origin_access_identity
   description: Create bucket and Origin Access Identity
 
 

@@ -1,7 +1,7 @@
 test_metadata:
   type: config
-  name: bucket with lambda notifictaion
-  description: Create bucket and enable lambda notifcation on creation of new objects
+  name: lambda_notifications
+  description: Create bucket and enable lambda notification on creation of new objects
 
 
 buckets:
