@@ -58,6 +58,8 @@ def create_bucket(params, event, context):
   notifications = params['Notifications'] if 'Notifications' in params else None
   bucket_name = params['BucketName']
   cors_configuration = params['CorsConfiguration'] if 'CorsConfiguration' in params else None
+  if cors_configuration.get('MaxAgeSeconds')is not None:
+    cors_configuration['MaxAgeSeconds'] = int(cors_configuration['MaxAgeSeconds'])
   bucket_already_exists = True
 
   try:
