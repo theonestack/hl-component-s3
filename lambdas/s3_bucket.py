@@ -58,8 +58,6 @@ def create_bucket(params, event, context):
   notifications = params['Notifications'] if 'Notifications' in params else None
   bucket_name = params['BucketName']
   cors_configuration = params['CorsConfiguration'] if 'CorsConfiguration' in params else None
-  if cors_configuration.get('MaxAgeSeconds')is not None:
-    cors_configuration['MaxAgeSeconds'] = int(cors_configuration['MaxAgeSeconds'])
   bucket_already_exists = True
 
   try:
@@ -165,6 +163,9 @@ def delete_notification(Bucket):
 def add_cors(cors_configuration, bucket_name):
   bucket_cors = s3r.BucketCors(bucket_name)
   cors_rules = []
+  if cors_configuration.get('MaxAgeSeconds')is not None:
+    cors_configuration['MaxAgeSeconds'] = int(cors_configuration['MaxAgeSeconds'])
+  print(f"Cors Configuration: {cors_configuration}")
 
   bucket_cors.put(
     CORSConfiguration={
@@ -172,7 +173,6 @@ def add_cors(cors_configuration, bucket_name):
     }
   )
   print(f"Put cors configuration request completed... for {bucket_name} :)")  
-
 
 def delete_cors(bucket_name):
   bucket_cors = s3r.BucketCors(bucket_name)
