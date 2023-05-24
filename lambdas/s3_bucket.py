@@ -163,6 +163,19 @@ def delete_notification(Bucket):
 def add_cors(cors_configuration, bucket_name):
   bucket_cors = s3r.BucketCors(bucket_name)
   cors_rules = []
+  
+  # Update MaxAgeSeconds to int if provided
+  if 'CorsRules' in cors_configuration and len(cors_configuration['CorsRules']) > 0:
+    for cors_rule in cors_configuration['CorsRules']:
+      if 'MaxAgeSeconds' in cors_rule:
+          try:
+              cors_rule['MaxAgeSeconds'] = int(cors_rule['MaxAgeSeconds'])
+          except ValueError:
+              print("Unable to convert MaxAgeSeconds to an integer.")
+  else:
+    print("CorsRules key not found.")
+  
+  print(f"Cors Configuration: {cors_configuration}")
 
   bucket_cors.put(
     CORSConfiguration={
@@ -170,7 +183,6 @@ def add_cors(cors_configuration, bucket_name):
     }
   )
   print(f"Put cors configuration request completed... for {bucket_name} :)")  
-
 
 def delete_cors(bucket_name):
   bucket_cors = s3r.BucketCors(bucket_name)
