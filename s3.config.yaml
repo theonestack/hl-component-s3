@@ -29,7 +29,7 @@ s3_custom_resources:
     S3BucketCreateOnlyCR:
       code: s3_bucket.py
       handler: s3_bucket.handler
-      runtime: python3.7
+      runtime: python3.8
       timeout: 5
       role: S3CustomResource
       environment:
