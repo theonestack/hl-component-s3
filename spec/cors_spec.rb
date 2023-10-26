@@ -109,7 +109,7 @@ describe 'compiled component s3' do
       end
       
       it "to have property Runtime" do
-          expect(resource["Properties"]["Runtime"]).to eq("python3.7")
+          expect(resource["Properties"]["Runtime"]).to eq("python3.8")
       end
       
       it "to have property Timeout" do
