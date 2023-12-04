@@ -52,6 +52,14 @@ CloudFormation do
       cors_configuration['CorsRules'] = cors_rules
     end
 
+    # ACL
+    ownership_controls_rules = []
+    acl_rules = config.has_key?('acl_rules') ? config['acl_rules'] : []
+    acl_rules.each do |acl_rule|
+      ownership_control_rule = {}
+      ownership_control_rule['ObjectOwnership'] = acl_rule
+      ownership_controls_rules.append(ownership_control_rule)
+    end
 
     if bucket_type == 'create_if_not_exists'
       Resource("#{safe_bucket_name}") do
@@ -87,6 +95,9 @@ CloudFormation do
           DestinationBucketName: Ref("#{safe_bucket_name}AccessLogsBucket"),
           LogFilePrefix: FnIf("#{safe_bucket_name}SetLogFilePrefix", Ref("#{safe_bucket_name}LogFilePrefix"), Ref('AWS::NoValue'))
         }) if config.has_key?('enable_logging') && config['enable_logging']
+        OwnershipControls ({
+          Rules: ownership_controls_rules
+        }) if !ownership_controls_rules.empty?
       end
     end
 
