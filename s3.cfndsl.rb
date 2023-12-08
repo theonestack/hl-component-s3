@@ -61,6 +61,46 @@ CloudFormation do
       ownership_controls_rules.append(ownership_control_rule)
     end
 
+    # s3 website
+    website_configuration = {}
+    website = config.has_key?('website') ? config['website'] : {}
+    if !website.empty?
+      if website['redirect_requests']
+        website_configuration['RedirectAllRequestsTo'] = {
+          'HostName': website['redirect_hostname'],
+          'Protocol': website['redirect_protocol']
+        }
+      else
+        website_configuration['ErrorDocument'] = website['error_document']
+        website_configuration['IndexDocument'] = website['index_document']
+
+        if website.has_key?('routing_rules')
+          routing_rules = []
+          website['routing_rules'].each do |rule|
+            routing_rule = {}
+
+            # Redirect rule
+            routing_rule['RedirectRule'] = {}
+            routing_rule['RedirectRule']['HostName'] = rule['redirect_rule']['hostname'] if rule['redirect_rule'].has_key?('hostname')
+            routing_rule['RedirectRule']['HttpRedirectCode'] = rule['redirect_rule']['http_redirect_code'] if rule['redirect_rule'].has_key?('http_redirect_code')
+            routing_rule['RedirectRule']['Protocol'] = rule['redirect_rule']['protocol'] if rule['redirect_rule'].has_key?('protocol')
+
+            # ReplaceKeyPrefixWith and ReplaceKeyWith cannot be specified together (can only be 1 or the other)
+            routing_rule['RedirectRule']['ReplaceKeyPrefixWith'] = rule['redirect_rule']['replace_key_prefix_with'] if rule['redirect_rule'].has_key?('replace_key_prefix_with') and !rule['redirect_rule'].has_key?('replace_key_with')
+            routing_rule['RedirectRule']['ReplaceKeyWith'] = rule['redirect_rule']['replace_key_with'] if rule['redirect_rule'].has_key?('replace_key_with') and !rule['redirect_rule'].has_key?('replace_key_prefix_with')
+
+            # Routing rule condition
+            routing_rule['RoutingRuleCondition'] = {}
+            routing_rule['RoutingRuleCondition']['HttpErrorCodeReturnedEquals'] = rule['routing_rule_condition']['http_error_code_returned_equals'] if rule['routing_rule_condition'].has_key?('http_error_code_returned_equals')
+            routing_rule['RoutingRuleCondition']['KeyPrefixEquals'] = rule['routing_rule_condition']['key_prefix_equals'] if rule['routing_rule_condition'].has_key?('key_prefix_equals')
+
+            routing_rules.append(routing_rule)
+          end
+          website_configuration['RoutingRules'] = routing_rules if !routing_rules.empty?
+        end
+      end
+    end
+
     if bucket_type == 'create_if_not_exists'
       Resource("#{safe_bucket_name}") do
         Type 'Custom::S3BucketCreateOnly'
@@ -98,6 +138,7 @@ CloudFormation do
         OwnershipControls ({
           Rules: ownership_controls_rules
         }) if !ownership_controls_rules.empty?
+        WebsiteConfiguration website_configuration if !website_configuration.empty?
       end
     end
 

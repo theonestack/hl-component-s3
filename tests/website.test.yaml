@@ -1,0 +1,26 @@
+test_metadata:
+  type: config
+  name: website
+  description: s3 website with multiple routing rules
+
+# Insert your tests here
+buckets:
+  normal-bucket:
+    type: default
+    website:
+      redirect_requests: false
+      error_document: error.html
+      index_document: index.html
+      routing_rules: 
+      - redirect_rule:
+          hostname: "test1"
+          http_redirect_code: "301"
+          protocol: "http"
+          replace_key_with: "test1"
+        routing_rule_condition:
+          http_error_code_returned_equals: "400"
+          key_prefix_equals: "test1"
+      - redirect_rule:
+          replace_key_prefix_with: "documents/"
+        routing_rule_condition:
+          key_prefix_equals: "docs/"
