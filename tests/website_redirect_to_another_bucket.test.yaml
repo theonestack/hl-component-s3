@@ -1,0 +1,13 @@
+test_metadata:
+  type: config
+  name: website_redirect_to_another_bucket
+  description: s3 website that redirects to another s3 bucket
+
+# Insert your tests here
+buckets:
+  normal-bucket:
+    type: default
+    website:
+      redirect_requests: true
+      redirect_hostname: "testbucket"
+      redirect_protocol: "http"
