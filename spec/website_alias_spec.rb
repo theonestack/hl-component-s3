@@ -4,14 +4,39 @@ describe 'compiled component s3' do
   
   context 'cftest' do
     it 'compiles test' do
-      expect(system("cfhighlander cftest #{@validate} --tests tests/website.test.yaml")).to be_truthy
+      expect(system("cfhighlander cftest #{@validate} --tests tests/website_alias.test.yaml")).to be_truthy
     end      
   end
   
-  let(:template) { YAML.load_file("#{File.dirname(__FILE__)}/../out/tests/website/s3.compiled.yaml") }
+  let(:template) { YAML.load_file("#{File.dirname(__FILE__)}/../out/tests/website_alias/s3.compiled.yaml") }
   
   context "Resource" do
 
+    
+    context "NormalbucketS3AliasRecord" do
+      let(:resource) { template["Resources"]["NormalbucketS3AliasRecord"] }
+
+      it "is of type AWS::Route53::RecordSet" do
+          expect(resource["Type"]).to eq("AWS::Route53::RecordSet")
+      end
+      
+      it "to have property HostedZoneName" do
+          expect(resource["Properties"]["HostedZoneName"]).to eq({"Fn::Sub"=>"example.com."})
+      end
+      
+      it "to have property Name" do
+          expect(resource["Properties"]["Name"]).to eq({"Fn::Sub"=>"mybucket.example.com."})
+      end
+      
+      it "to have property Type" do
+          expect(resource["Properties"]["Type"]).to eq("A")
+      end
+      
+      it "to have property AliasTarget" do
+          expect(resource["Properties"]["AliasTarget"]).to eq({"DNSName"=>"s3-website-ap-southeast-2.amazonaws.com.", "HostedZoneId"=>"Z1WCIGYICN2BYD"})
+      end
+      
+    end
     
     context "Normalbucket" do
       let(:resource) { template["Resources"]["Normalbucket"] }

@@ -74,6 +74,30 @@ CloudFormation do
         website_configuration['ErrorDocument'] = website['error_document']
         website_configuration['IndexDocument'] = website['index_document']
 
+        if website.has_key?('alias')
+          dns_format = website['alias']['dns_format']
+          subdomain = website['alias']['subdomain']
+          fqdn = subdomain + "." + dns_format + "."
+          region = website['alias']['region']
+          
+          # Reference: https://docs.aws.amazon.com/general/latest/gr/s3.html#s3_website_region_endpoints
+          s3RegionMapping = {
+            "ap-southeast-2" => {
+              "hosted_zone_id" => "Z1WCIGYICN2BYD"
+            }
+          }
+
+          Route53_RecordSet("#{safe_bucket_name}S3AliasRecord") do
+            HostedZoneName FnSub("#{dns_format}.") 
+            Name FnSub(fqdn)
+            Type 'A'
+            AliasTarget ({
+                DNSName: "s3-website-#{region}.amazonaws.com.",
+                HostedZoneId: s3RegionMapping[region]['hosted_zone_id']
+            })
+          end
+        end
+
         if website.has_key?('routing_rules')
           routing_rules = []
           website['routing_rules'].each do |rule|
