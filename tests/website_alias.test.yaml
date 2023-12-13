@@ -1,7 +1,7 @@
 test_metadata:
   type: config
-  name: website
-  description: s3 website with multiple routing rules
+  name: website_alias
+  description: set the description for your test
 
 # Insert your tests here
 buckets:
@@ -11,6 +11,10 @@ buckets:
       redirect_requests: false
       error_document: error.html
       index_document: index.html
+      alias:
+        dns_format: example.com
+        subdomain: mybucket
+        region: ap-southeast-2
       routing_rules: 
       - redirect_rule:
           hostname: "test1"
