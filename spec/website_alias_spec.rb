@@ -33,7 +33,7 @@ describe 'compiled component s3' do
       end
       
       it "to have property AliasTarget" do
-          expect(resource["Properties"]["AliasTarget"]).to eq({"DNSName"=>"s3-website-ap-southeast-2.amazonaws.com.", "HostedZoneId"=>"Z1WCIGYICN2BYD"})
+          expect(resource["Properties"]["AliasTarget"]).to eq({"DNSName"=>{"Fn::Sub"=>"s3-website-${AWS::Region}.amazonaws.com."}, "HostedZoneId"=>{"Fn::FindInMap"=>["S3AliasHostedZone", {"Ref"=>"AWS::Region"}, "HostedZoneId"]}})
       end
       
     end
