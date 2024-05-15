@@ -14,7 +14,6 @@ buckets:
       alias:
         dns_format: example.com
         subdomain: mybucket
-        region: ap-southeast-2
       routing_rules: 
       - redirect_rule:
           hostname: "test1"

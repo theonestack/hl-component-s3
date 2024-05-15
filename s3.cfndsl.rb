@@ -78,22 +78,14 @@ CloudFormation do
           dns_format = website['alias']['dns_format']
           subdomain = website['alias']['subdomain']
           fqdn = subdomain + "." + dns_format + "."
-          region = website['alias']['region']
           
-          # Reference: https://docs.aws.amazon.com/general/latest/gr/s3.html#s3_website_region_endpoints
-          s3RegionMapping = {
-            "ap-southeast-2" => {
-              "hosted_zone_id" => "Z1WCIGYICN2BYD"
-            }
-          }
-
           Route53_RecordSet("#{safe_bucket_name}S3AliasRecord") do
             HostedZoneName FnSub("#{dns_format}.") 
             Name FnSub(fqdn)
             Type 'A'
             AliasTarget ({
-                DNSName: "s3-website-#{region}.amazonaws.com.",
-                HostedZoneId: s3RegionMapping[region]['hosted_zone_id']
+                DNSName: FnSub("s3-website-${AWS::Region}.amazonaws.com."),
+                HostedZoneId: FnFindInMap('S3AliasHostedZone', Ref('AWS::Region'), 'HostedZoneId')
             })
           end
         end
