@@ -1,0 +1,6 @@
+# Reference: https://docs.aws.amazon.com/general/latest/gr/s3.html#s3_website_region_endpoints
+S3AliasHostedZone:
+  ap-southeast-2:
+    HostedZoneId: Z1WCIGYICN2BYD
+  us-west-2:
+    HostedZoneId: Z3BJ6K6RIION7M
