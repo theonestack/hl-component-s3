@@ -1,5 +1,7 @@
 CloudFormation do
 
+  export = external_parameters.fetch(:export_name, external_parameters[:component_name])
+
   buckets = external_parameters.fetch(:buckets, {})
   buckets.each do |bucket, config|
 
@@ -169,7 +171,7 @@ CloudFormation do
     Output(safe_bucket_name) { Value(Ref(safe_bucket_name)) }
     Output(safe_bucket_name + 'DomainName') do 
       Value FnGetAtt(safe_bucket_name, 'DomainName')
-      Export FnSub("${EnvironmentName}-#{safe_bucket_name}-domain-name")
+      Export FnSub("${EnvironmentName}-#{export}-#{safe_bucket_name}-domain-name")
     end
 
     if origin_access_identity
@@ -181,7 +183,7 @@ CloudFormation do
 
       Output("#{safe_bucket_name}OriginAccessIdentity") do
         Value Ref("#{safe_bucket_name}OriginAccessIdentity")
-        Export FnSub("${EnvironmentName}-#{safe_bucket_name}-origin-access-identity")
+        Export FnSub("${EnvironmentName}-#{export}-#{safe_bucket_name}-origin-access-identity")
       end
     end
 
